@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>可记忆高强度口令生成</h1>
+    <p>请输入1-3个不相关的中文关键词，用英文逗号(,)隔开。</p>
+    <form action="" method="post">
+        <p>
+            <input type="text" name="keywords" size="50" placeholder="例如：月光,代码,海洋">
+        </p>
+        <p><input type="submit" value="生成"></p>
+    </form>
+
+    {% if passphrase %}
+        <hr>
+        <h3>生成结果:</h3>
+        <p><strong>密码短语 (请牢记):</strong> {{ passphrase }}</p>
+        <p><strong>Argon2哈希值 (存入数据库):</strong> <textarea rows="3" cols="80" readonly>{{ hashed_passphrase }}</textarea></p>
+    {% endif %}
+{% endblock %}

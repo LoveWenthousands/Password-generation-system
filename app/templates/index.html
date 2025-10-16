@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>欢迎来到语义驱动型安全口令系统</h1>
+    {% if current_user.is_authenticated %}
+        <p>你好, {{ current_user.username }}!</p>
+        <p>你可以开始使用我们的功能了。</p>
+    {% else %}
+        <p>请先 <a href="{{ url_for('auth.login') }}">登录</a> 或 <a href="{{ url_for('auth.register') }}">注册</a> 来体验本项目。</p>
+    {% endif %}
+{% endblock %}
