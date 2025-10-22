@@ -11,8 +11,8 @@ bp = Blueprint('generation', __name__)
 def generate():
     if request.method == 'POST':
         keywords_str = request.form.get('keywords', '')
-        keywords = [k.strip() for k in keywords_str.split(',') if k.strip()]
-        
+        keywords  = [k.strip() for k in keywords_str.split(',') if k.strip()]
+       
         if not keywords:
             flash('请输入至少一个关键词。')
             return render_template('generation.html', title='生成密码')
