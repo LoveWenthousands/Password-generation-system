@@ -65,3 +65,5 @@ def recover():
                 flash(f'验证失败。语义相似度: {similarity:.4f}，未达到阈值 {SIMILARITY_THRESHOLD}。')
 
     return render_template('recovery.html', title='语义恢复测试')
+
+#dfr
