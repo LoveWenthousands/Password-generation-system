@@ -1,19 +1,62 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h1>可记忆高强度口令生成</h1>
-    <p>请输入1-3个不相关的中文关键词，用英文逗号(,)隔开。</p>
+    <h1>生成新密码</h1>
     <form action="" method="post">
         <p>
-            <input type="text" name="keywords" size="50" placeholder="例如：月光,代码,海洋">
+            服务名称:<br>
+            <input type="text" name="service_name" value="{{ service_name if service_name }}" required>
         </p>
-        <p><input type="submit" value="生成"></p>
+        <p>
+            密码长度:<br>
+            <input type="number" name="length" value="16" min="8" max="32">
+        </p>
+        <p>
+            <input type="submit" name="generate" value="生成密码">
+        </p>
     </form>
 
-    {% if passphrase %}
-        <hr>
-        <h3>生成结果:</h3>
-        <p><strong>密码短语 (请牢记):</strong> {{ passphrase }}</p>
-        <p><strong>Argon2哈希值 (存入数据库):</strong> <textarea rows="3" cols="80" readonly>{{ hashed_passphrase }}</textarea></p>
+    {% if password %}
+    <div class="generated-password">
+        <h2>生成的密码:</h2>
+        <pre>{{ password }}</pre>
+        
+        <form action="" method="post">
+            <input type="hidden" name="service_name" value="{{ service_name }}">
+            <p>
+                输入您的主密码以保存此密码:<br>
+                <input type="password" name="current_password" required>
+            </p>
+            <input type="hidden" name="password" value="{{ password }}">
+            <p>
+                <input type="submit" name="save" value="保存密码">
+                <a href="{{ url_for('generation.generate') }}" class="button">重新生成</a>
+            </p>
+        </form>
+    </div>
     {% endif %}
+
+    <style>
+        .generated-password {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        pre {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .button {
+            display: inline-block;
+            padding: 5px 15px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+            margin-left: 10px;
+        }
+    </style>
 {% endblock %}
