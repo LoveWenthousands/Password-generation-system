@@ -31,6 +31,7 @@ class StoredPassword(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     service_name = db.Column(db.String(120), nullable=False)
     encrypted_password = db.Column(db.LargeBinary, nullable=False)
+    salt = db.Column(db.LargeBinary, nullable=False)  # 存储加密用的盐值
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

@@ -1,8 +1,8 @@
-from flask import render_template, request, flash, redirect, url_for
+from flask import render_template, request, flash, redirect, url_for, jsonify
 from flask.blueprints import Blueprint
 from flask_login import login_required, current_user
-from app.services.password_service import generate_random_password, encrypt_password
-from app.models import StoredPassword
+from app.services.password_service import generate_random_password, encrypt_password, decrypt_password
+from app.models import StoredPassword, User
 from app import db
 
 bp = Blueprint('generation', __name__)
@@ -52,3 +52,64 @@ def generate():
                              password=password, service_name=service_name)
         
     return render_template('generation.html', title='生成密码')
+
+@bp.route('/passwords/<int:id>/show', methods=['POST'])
+@login_required
+def show_password(id):
+    """显示特定服务的密码"""
+    stored_password = StoredPassword.query.get_or_404(id)
+    
+    # 确保只能查看自己的密码
+    if stored_password.user_id != current_user.id:
+        return jsonify({
+            'success': False,
+            'message': '未授权的访问'
+        }), 403
+    
+    # 验证主密码
+    current_password = request.form.get('current_password')
+    if not current_password:
+        return jsonify({
+            'success': False,
+            'message': '请输入主密码'
+        }), 400
+    
+    if not current_user.check_password(current_password):
+        return jsonify({
+            'success': False,
+            'message': '主密码错误'
+        }), 400
+    
+    try:
+        # 解密密码
+        decrypted_password = decrypt_password(
+            stored_password.encrypted_password,
+            current_password,
+            stored_password.salt
+        )
+        return jsonify({
+            'success': True,
+            'password': decrypted_password,
+            'service_name': stored_password.service_name
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '密码解密失败'
+        }), 500
+
+@bp.route('/passwords/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_password(id):
+    """删除保存的密码"""
+    stored_password = StoredPassword.query.get_or_404(id)
+    
+    # 确保只能删除自己的密码
+    if stored_password.user_id != current_user.id:
+        flash('未授权的访问')
+        return redirect(url_for('generation.list_passwords'))
+    
+    db.session.delete(stored_password)
+    db.session.commit()
+    flash(f'已删除 {stored_password.service_name} 的密码')
+    return redirect(url_for('generation.list_passwords'))
